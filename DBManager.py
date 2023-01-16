@@ -11,9 +11,6 @@ with open('users.json') as reader:
     users = json.load(reader)
 
 
-# users = {'root': '1234'}
-
-
 def start():
     os.system("cls")
     print("Welcome to database manager\nAvailable options:\n1.Login\n2.Create user")
@@ -117,7 +114,6 @@ def queryExec(connection: MySQLConnection):
     cursor = connection.cursor()
     while query != "exit":
         cursor.execute(query)
-        # connection.commit()
         result = cursor.fetchall()
         print(cursor.column_names)
         print(result)
@@ -139,27 +135,3 @@ def logout(connection: MySQLConnection):
 
 if __name__ == "__main__":
     start()
-
-    # with open('users.json', 'w') as convert_file:
-    #     convert_file.write(json.dumps(users))
-
-    # with open('users.json') as reader:
-    #     out = json.load(reader)
-
-    ''' try:
-        connection = mysql.connector.connect(host='127.0.0.1',
-                                             database='mobilestore',
-                                             user='root',
-                                             password='1234')
-        if connection.is_connected():
-            db_Info = connection.get_server_info()
-            print("Connected to MySQL Server version ", db_Info)
-            cursor = connection.cursor()
-
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed") '''
