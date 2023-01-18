@@ -5,7 +5,6 @@ import os
 import time
 import re
 from mysql.connector import Error, MySQLConnection
-from mysql.connector.cursor_cext import CMySQLCursor
 
 with open('users.json') as reader:
     users = json.load(reader)
@@ -21,8 +20,9 @@ ourQueries = ["SELECT Name FROM Product ORDER BY Name ASC",
               "SELECT pr.Name, pr.ID, pt.Name FROM Product pt, Provider pr, Product_has_Provider php WHERE pt.ID = php.Product_ID and pr.ID = php.Provider_ID and pt.ID = 3",
               "SELECT pr.Name, pr.ID, pt.Name, MIN(Price) FROM Product pt, Provider pr, Product_has_Provider php WHERE pt.ID = php.Product_ID and pr.ID = php.Provider_ID and pt.ID = 3",
               "SELECT p.Name, b.Cart_Customer_ID FROM Product p, Bill b, Cart_contains_Product ccp WHERE p.ID = ccp.Product_ID and ccp.Cart_ID = b.Cart_ID and b.Cart_Customer_ID = 2 ORDER BY b.Date DESC LIMIT 2",
-              "SELECT distinct p1.Name, p1.ID, p2.Name, p2.ID FROM Provider p1, Provider p2 WHERE p1.City = p2.City",
-              "SELECT DISTINCT c1.First_name, c1.Last_name FROM Customer c1, Customer c2 WHERE c1.City = c2.City and not (c1.First_name = c2.First_name)"
+              "SELECT DISTINCT p1.Name, p1.ID, p1.City FROM Provider p1, Provider p2 WHERE p1.City = p2.City and not (p1.ID = p2.ID) ORDER BY p1.City",
+              "SELECT DISTINCT c1.First_name, c1.Last_name FROM Customer c1, Customer c2 WHERE c1.City = c2.City and not (c1.First_name = c2.First_name)",
+              "SELECT p.ID, p.Name, SUM(p.Price) total FROM Product p, Cart c, Cart_contains_Product ccp WHERE p.ID = ccp.Product_ID and c.ID = ccp.Cart_ID and p.ID = 8"
               ]
 
 
@@ -149,16 +149,22 @@ def our_queries(connection: MySQLConnection):
     for i in options:
         print(f"{counter}.{i}")
         counter += 1
+        time.sleep(0.2)
 
     print("Enter exit to get back")
     op = input(">>> ")
     cursor = connection.cursor()
     while op != "exit":
-        cursor.execute(ourQueries[int(op) - 1])
-        result = cursor.fetchall()
-        for i in result:
-            print(i)
-        op = input(">>> ")
+        try:
+            cursor.execute(ourQueries[int(op) - 1])
+            result = cursor.fetchall()
+            for i in result:
+                print(i)
+            op = input(">>> ")
+        except Error as e:
+            print("Error: ", e)
+        finally:
+            op = input(">>> ")
 
 
 def logout(connection: MySQLConnection):
